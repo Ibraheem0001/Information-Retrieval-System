@@ -1,0 +1,212 @@
+The source is: overview of natural language processing 
+of captions for retrieving multimedia data 
+eugene j. guglielmo?
+naval weapons center. 
+information systems department,  code 2724 
+china lake,  cal i fornia 93555 
+neil c. rowe 
+naval postgraduate school 
+computer  science department,  code 52 
+monterey,  cal i fornia 93943 
+abstract 
+this paper briefly describes the current implementa- 
+tion status of an intelligent information retrieval sys- 
+tem, marie, that employs natural language process- 
+ing techniques. descriptive captions are used to iden- 
+tify photographic images concerning various military 
+projects. the captions are parsed to produce a logical 
+form from which nouns and verbs are extracted to 
+form the primary keywords. user queries are also 
+specified in natural language. a two-phase search pro- 
+cess employing coarse-grain and fine-grain match pro- 
+cesses is used to find the captions that best match the 
+query. a type hierarchy based on object-oriented pro- 
+gramming constructs i used to represent the semantic 
+knowledge base. this knowledge base contains 
+knowledge of various military concepts and terminol- 
+ogy with specifics from the naval weapons center. 
+methods are used for creating the logical form during 
+semantic analysis, generating the keywords to be used 
+in the coarse-grain match process, and fine-grain 
+matching between query and caption logical forms. 
+1 introduction 
+recent approaches to intelligent information retrieval have 
+used natural language (nl) understanding methods instead of 
+keywords and statistical methods. however, the best nl 
+method is still unknown. this research studies a restricted 
+form of information, the description associated with 
+identifying multimedia data, i.e., natural language captions. 
+the rationale and motivation for using captions was 
+presented by lum and meyer-wegener (1990). a prototype 
+parser was developed for demonstrating how natural language 
+queries could be used in conjunction with structured query 
+language (sql) for specifying retrieval requests from a 
+multimedia database. 
+using these results at the naval postgraduate school, we 
+have been able to design a more robust natural anguage 
+processing and retrieval system for potential use at the naval 
+weapons center (nwc). the center's photo lab maintains 
+a database of over 100,000 photographs of project and 
+historical data from the last 50 years. both captions and 
+supercaptions (caption about a set of captions) are used. the 
+current search and retrieval strategy uses manually created 
+keywords organized into a keyphrase - a head keyword and a 
+string of descriptive nouns. our strategy entails parsing the 
+english captions to produce a logical form, then using the 
+logical form as the basis of the retrieval. we have labeled 
+this system marie (epistemological information retrieval 
+applied to multimedia). 
+2 methodology 
+the information retrieval system we have developed isbased 
+on two stages:.a coarse-grain match to reduce the list of 
+possible information for a later fine-grain match (rau 1987). 
+three tasks that we deemed essential for this system included 
+the ability to represent and produce a logical form of the 
+caption, the ability to generate keywords from the logical 
+form, and the ability to load in previously stored caption 
+logical forms for matching against the query logical form. 
+2.1 nl parser 
+we have used an existing natural language processing pro- 
+gram, the dbg message understanding system 
+(montgomery et al. 1989), as a starting point. this program 
+was developed for understanding dialog conversations. to ac- 
+commodate he existing captions at nwc, we had to make 
+modifications to the grammar, functional parser, and tem- 
+plate processor. 
+the grammar rules were changed to enable parsing of 
+punctuation, descriptive noun phrases, dates, geographic 
+locations, numeric and descriptive vehicle designations. 
+additional rules were introduced to handle theme-oriented 
+phrases as opposed to agent-initiated sentences. the structure 
+of functional parse output was altered to accommodate 
+mapping into the type hierarchy. specifically, tokens were 
+introduced to allow linking together words based on 
+syntactic relationships. the resulting output structure 
+appears imilar to slot-assertion notation. 
+in the original dbg system, the template processor 
+produced frame structures for a semantic analysis of the 
+sentence. this portion of the system was redone using an 
+object-oriented programming methodology. we have created 
+a single type hierarchy to hold both nouns and verbs. 
+producing the logical form is a matter of mapping the 
+predicate xpressions from the functional parse output into 
+the type hierarchy. methods are used to set inner cases for 
+both nouns and verbs (e.g., theme, agent, location, etc.); set 
+modifiers for nouns and verbs (e.g., adjectives and adverbs); 
+231
+set correlations between classes (e.g., part_of, has_part, 
+program_about, etc.); and generate the logical form from 
+class instances and associated slot values. 
+2.2 generating the keywords 
+keyword records to be used in the coarse-grain match are ob- 
+tained from the type hierarchy directly rather than from the 
+logical form output. an instance of a class uses the class 
+name as the keyword. the keyword is based on logically 
+proper names, not definite descriptions as described by 
+frixione et al. (1989). methods are defined for caching 
+keyword records containing the caption identifier and any 
+case information to a keyword file for each class instance. 
+each class has a keyword file maintained in sorted order. 
+2.3 matching 
+once an english query is instantiated within the type hierar- 
+chy to reflect he query logical form, the instances indicate 
+which class and subclass keyword files need to be examined 
+in the coarse-grain match. the corresponding keyword files 
+are read, and the keyword records are intersected using the 
+caption-id as the unique identifier. in the future, case 
+information will be used at query time for specifying the 
+role for a word (e.g, initiator of an action as opposed to the 
+recipient) and treated as a filter in selecting the appropriate 
+case records within the keyword file. caption-ids whose 
+intersection score exceed a coarse-grain match threshold 
+become ligible for fine-grain matching. 
+fine-grain matching entails mapping the logical form for 
+a stored parsed caption back into the type hierarchy and 
+matching it against he query instances within the hierarchy. 
+figure 1 shows the appearance of the type hierarchy with the 
+existence of both the query "missile on stand" and caption 
+262865, "sidewinder aim 9r missile on stand," within it. 
+phys obl i 
+noun(query-l-i) ~ /  
+on(noun(query-l-2)) noun(query-l-2) 
+noun(262865-1-2) 
+lair-to-air 
+missile i 
+query: missile on stand 
+caption: sidewinder aim 9r missi/e 
+\[sidewinder \[ on stand 
+~ query inst's 
+on(noun(262865-1-2) ~ caption inst's 
+figure 1 fine-grain matching in type hierarchy 
+instance matching is based on subtype matching. in 
+figure 1, the query instance for the class "missile" matches 
+the query instance for the class "aim-9r." matching of rela- 
+tionships is currently based on exact matching. the match- 
+ing process is being modified to allow relationship matching 
+based on a predefined set of relationships. caption-ids with 
+match scores exceeding a fine-grain match threshold are 
+presented to the user. 
+3 implementat ion status 
+the majority of the system is written in quintus prolog. 
+with the type hierarchy being developed using the elsa-lap 
+object-oriented prolog tool. the system runs on sun 
+sparcstations and was designed using a client-server 
+relationship; the user search environment and key creation 
+interface form the two clients and a server process handles 
+the parsing of the natural anguage, generation of the keys, 
+and the matching. the lexicon has over 1000 lexical items 
+and the type hierarchy has over 200 classes. further 
+implementation a d methodology details can be found in 
+guglielmo and rowe (1991). 
+4 future research 
+the present system handles individual captions that describe 
+an individual photograph. future work will investigate 
+supercaptions. for example, supercaptions that are used to 
+represent all captions from the same chapter of a book or a 
+supercaption that is used to represent all captions that 
+pertain to a combat plan. all of the member captions hare 
+something in common, and the intersection of this common 
+information forms the supercaption. 
+5 conclusion 
+the ability to use natural anguage for query specification 
+and retrieval holds the most promise over keyword and 
+keyphrase approaches. we believe that the restricted use of 
+natural language in captions for multimedia data retrieval is 
+a less difficult task than full natural anguage fact retrieval. 
+we feel that we have a system that can be demonstrated and 
+built upon not only for retrieving images but also other 
+forms of multimedia data as well. 
+references  
+frixione, m., s. gaglio, and g. spinelli. 1989. are there 
+individual concepts? proper names and individual concepts 
+in si-nets. intl. journal man-machine studies 30:489-503. 
+guglielmo, e.j. and rowe, n.c. 1991. natural language 
+processing of captions for retrieving multimedia data. 
+tech pub. tp-7203. naval weapons center, information 
+systems department, china lake, ca. december. 
+lum, v. y. and k. meyer-wegener. 1990. "an architecture 
+for a multimedia database management system supporting 
+content search." in advances in computing and 
+information, proceedings ofthe international conference on 
+computing and information. niagra falls, canada, may 23- 
+26. 
+montgomery, c. a., j. burge, h. holmback, j. l. kuhns, 
+b. g. stalls, r. stumberger, and r. l. russel jr. 1989. 
+the dbg message understanding system. in proceedings of
+the annual ai systems in government conference, 
+washington, d.c., march 27-31. 
+rau, l. 1987. "knowledge organization and access in a 
+conceptual information system." information processing &
+management 23, no. 4:269-283. 
+232
+
+score: 1.0000000000000002
+file name: A92-1033.pdf.txt
+score: 0.6214419375322435
+file name: D14-1064.pdf.txt
+score: 0.6214075081421436
+file name: A92-1010.pdf.txt
+score: 0.6133024579728416
+file name: E83-1032.pdf.txt
+score: 0.6107623052663174
+file name: A88-1014.pdf.txt
